@@ -92,14 +92,16 @@ public class CrimeListFragment extends Fragment {
             mDateTextView.setText(date);
             if (!mCrime.isSolved()) {
                 mSolvedImageView.setVisibility(View.INVISIBLE);
+            } else {
+                mSolvedImageView.setVisibility(View.VISIBLE);
             }
         }
 
         @Override
         public void onClick(View v) {
-            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
             mCrimePositionInList = getAdapterPosition();
-            startActivityForResult(intent, REQUEST_CRIME);
+            startActivity(intent);
         }
     }
 
