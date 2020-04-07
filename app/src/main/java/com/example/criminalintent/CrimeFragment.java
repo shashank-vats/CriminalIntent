@@ -67,7 +67,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
-                returnResult(mCrimeId);
             }
 
             @Override
@@ -86,17 +85,10 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
-                returnResult(mCrimeId);
             }
         });
 
         return v;
-    }
-
-    public void returnResult(UUID crimeId) {
-        Intent intent = new Intent();
-        intent.putExtra(EXTRA_CRIME_ID, crimeId);
-        getActivity().setResult(Activity.RESULT_OK, intent);
     }
 
     public static UUID getCrimeId(Intent intent) {

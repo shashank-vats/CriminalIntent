@@ -39,6 +39,7 @@ public class CrimeListFragment extends Fragment {
         if (savedInstanceState != null) {
             mCrimePositionInList = savedInstanceState.getInt(KEY_CRIME_POSITION_IN_LIST);
         }
+        mCrimePositionInList = -1;
     }
 
     @Nullable
@@ -90,13 +91,14 @@ public class CrimeListFragment extends Fragment {
             String date = mDf.format(mCrime.getDate());
             mDateTextView.setText(date);
             if (!mCrime.isSolved()) {
-                mSolvedImageView.setVisibility(View.GONE);
+                mSolvedImageView.setVisibility(View.INVISIBLE);
             }
         }
 
         @Override
         public void onClick(View v) {
             Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            mCrimePositionInList = getAdapterPosition();
             startActivityForResult(intent, REQUEST_CRIME);
         }
     }
@@ -124,21 +126,6 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCrimes.size();
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_CANCELED) {
-            return;
-        }
-        if (requestCode == REQUEST_CRIME) {
-            if (data == null) {
-                return;
-            }
-            UUID crimeId = CrimeFragment.getCrimeId(data);
-            mCrimePositionInList = CrimeLab.getCrimePosition(crimeId);
         }
     }
 
