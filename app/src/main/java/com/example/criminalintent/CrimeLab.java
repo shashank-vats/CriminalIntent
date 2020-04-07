@@ -39,4 +39,15 @@ public class CrimeLab {
         }
         return null;
     }
+
+    public static int getCrimePosition(UUID id) {
+        int position = 0;
+        List<Crime> crimes = sCrimeLab.getCrimes();
+        for (; position < crimes.size(); position++) {
+            if (crimes.get(position).getId().equals(id)) {
+                break;
+            }
+        }
+        return position;
+    }
 }

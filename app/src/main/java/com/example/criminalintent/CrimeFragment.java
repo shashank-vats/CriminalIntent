@@ -1,5 +1,7 @@
 package com.example.criminalintent;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,6 +30,10 @@ public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
 
+    private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
+
+    private UUID mCrimeId;
+
     public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_CRIME_ID, crimeId);
@@ -41,8 +47,8 @@ public class CrimeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
-        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
-        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        mCrimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+        mCrime = CrimeLab.get(getActivity()).getCrime(mCrimeId);
     }
 
     @Nullable
@@ -61,6 +67,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
+                returnResult(mCrimeId);
             }
 
             @Override
@@ -79,9 +86,20 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
+                returnResult(mCrimeId);
             }
         });
 
         return v;
+    }
+
+    public void returnResult(UUID crimeId) {
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_CRIME_ID, crimeId);
+        getActivity().setResult(Activity.RESULT_OK, intent);
+    }
+
+    public static UUID getCrimeId(Intent intent) {
+        return (UUID) intent.getSerializableExtra(EXTRA_CRIME_ID);
     }
 }
