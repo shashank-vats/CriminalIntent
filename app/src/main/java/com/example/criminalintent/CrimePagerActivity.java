@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +21,9 @@ import java.util.UUID;
 
 public class CrimePagerActivity extends AppCompatActivity {
     private ViewPager mViewPager;
+    private Button mFirstButton;
+    private Button mLastButton;
+
     private List<Crime> mCrimes;
 
     private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
@@ -59,6 +64,41 @@ public class CrimePagerActivity extends AppCompatActivity {
             if (mCrimes.get(i).getId().equals(crimeId)) {
                 mViewPager.setCurrentItem(i);
                 break;
+            }
+        }
+
+        mFirstButton = findViewById(R.id.first_button);
+        mFirstButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewPager.setCurrentItem(0);
+            }
+        });
+
+        mLastButton = findViewById(R.id.last_button);
+        mLastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewPager.setCurrentItem(mCrimes.size() - 1);
+            }
+        });
+
+        mViewPager.addOnPageChangeListener(new MyOnPageChangeListener());
+    }
+
+    private class MyOnPageChangeListener extends ViewPager.SimpleOnPageChangeListener {
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+            if (position == 0) {
+                mFirstButton.setEnabled(false);
+            } else {
+                mFirstButton.setEnabled(true);
+            }
+            if (position == mCrimes.size() - 1) {
+                mLastButton.setEnabled(false);
+            } else {
+                mLastButton.setEnabled(true);
             }
         }
     }
