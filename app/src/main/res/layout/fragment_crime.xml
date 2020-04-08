@@ -35,6 +35,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/crime_date" />
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/set_time_button"
+            android:text="@string/time_button_text"
+            android:textAllCaps="false"/>
+
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

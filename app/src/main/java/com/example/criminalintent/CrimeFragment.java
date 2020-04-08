@@ -17,31 +17,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.viewpager.widget.ViewPager;
 
 import java.util.Date;
-import java.util.Objects;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
 
     private Crime mCrime;
 
-    private EditText mTitleField;
     private Button mDateButton;
-    private CheckBox mSolvedCheckBox;
 
     private static final String ARG_CRIME_ID = "crime_id";
 
-    private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
-
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME = "DialogTime";
 
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_TIME = 1;
 
-    private UUID mCrimeId;
-
-    public static CrimeFragment newInstance(UUID crimeId) {
+    static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_CRIME_ID, crimeId);
 
@@ -54,8 +48,8 @@ public class CrimeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
-        mCrimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
-        mCrime = CrimeLab.get(getActivity()).getCrime(mCrimeId);
+        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
     }
 
     @Nullable
@@ -63,9 +57,9 @@ public class CrimeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
 
-        mTitleField = v.findViewById(R.id.crime_title);
-        mTitleField.setText(mCrime.getTitle());
-        mTitleField.addTextChangedListener(new TextWatcher() {
+        EditText titleField = v.findViewById(R.id.crime_title);
+        titleField.setText(mCrime.getTitle());
+        titleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -95,12 +89,24 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-        mSolvedCheckBox = v.findViewById(R.id.crime_solved);
-        mSolvedCheckBox.setChecked(mCrime.isSolved());
-        mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        CheckBox solvedCheckBox = v.findViewById(R.id.crime_solved);
+        solvedCheckBox.setChecked(mCrime.isSolved());
+        solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
+            }
+        });
+
+        Button timeButton = v.findViewById(R.id.set_time_button);
+        timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragment dialog = TimePickerFragment.newInstance(mCrime.getDate());
+                dialog.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
+                assert manager != null;
+                dialog.show(manager, DIALOG_TIME);
             }
         });
 
@@ -113,10 +119,20 @@ public class CrimeFragment extends Fragment {
             return;
         }
         if (requestCode == REQUEST_DATE) {
+            assert data != null;
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-            mCrime.setDate(date);
-            updateDate();
+            onCrimeDateTimeChanged(date);
         }
+        if (requestCode == REQUEST_TIME) {
+            assert data != null;
+            Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
+            onCrimeDateTimeChanged(date);
+        }
+    }
+
+    private void onCrimeDateTimeChanged(Date date) {
+        mCrime.setDate(date);
+        updateDate();
     }
 
     private void updateDate() {
