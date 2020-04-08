@@ -7,4 +7,5 @@
     <string name="ic_solved_description">Crime solved</string>
     <string name="first_button_text">First</string>
     <string name="last_button_text">Last</string>
+    <string name="date_picker_title">Date of crime:</string>
 </resources>
