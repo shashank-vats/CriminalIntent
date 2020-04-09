@@ -27,10 +27,12 @@ public class CrimePagerActivity extends AppCompatActivity {
     private List<Crime> mCrimes;
 
     private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
+    private static final String EXTRA_NEW_CRIME = "com.example.criminalintent.new_crime";
 
-    public static Intent newIntent(Context packageContext, UUID crimeId) {
+    public static Intent newIntent(Context packageContext, UUID crimeId, boolean newCrime) {
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
         intent.putExtra(EXTRA_CRIME_ID, crimeId);
+        intent.putExtra(EXTRA_NEW_CRIME, newCrime);
         return intent;
     }
 
@@ -39,6 +41,7 @@ public class CrimePagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crime_pager);
         UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
+        final boolean newCrime = getIntent().getBooleanExtra(EXTRA_NEW_CRIME, false);
 
         mViewPager = findViewById(R.id.crime_view_pager);
 
@@ -49,7 +52,7 @@ public class CrimePagerActivity extends AppCompatActivity {
             @Override
             public Fragment getItem(int position) {
                 Crime crime = mCrimes.get(position);
-                return CrimeFragment.newInstance(crime.getId());
+                return CrimeFragment.newInstance(crime.getId(), newCrime);
             }
 
             @Override
