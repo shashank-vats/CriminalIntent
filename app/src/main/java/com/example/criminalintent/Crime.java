@@ -11,6 +11,7 @@ public class Crime {
     private boolean mSolved;
 
     public Crime() {
+        // give a random id to each crime and the date when it is formed
         mId = UUID.randomUUID();
         mDate = new Date();
     }

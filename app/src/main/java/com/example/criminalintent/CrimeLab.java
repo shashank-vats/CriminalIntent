@@ -9,9 +9,10 @@ import java.util.UUID;
 
 public class CrimeLab {
     private static CrimeLab sCrimeLab;
-    private LinkedHashMap<UUID, Crime> mCrimes;
+    private LinkedHashMap<UUID, Crime> mCrimeIdMap;
+    private List<Crime> mCrimes;
 
-    public  static CrimeLab get(Context context) {
+    static CrimeLab get(Context context) {
         if (sCrimeLab == null) {
             sCrimeLab = new CrimeLab(context);
         }
@@ -19,25 +20,20 @@ public class CrimeLab {
     }
 
     private CrimeLab(Context context) {
-        mCrimes = new LinkedHashMap<>();
-        for (int i = 0; i < 100; i++) {
-            Crime crime = new Crime();
-            crime.setTitle("Crime #" + i);
-            crime.setSolved(i % 2 == 0);
-            mCrimes.put(crime.getId(), crime);
-        }
+        mCrimeIdMap = new LinkedHashMap<>();
+        mCrimes = new ArrayList<>();
     }
 
-    public List<Crime> getCrimes() {
-        return new ArrayList<>(mCrimes.values());
+    List<Crime> getCrimes() {
+        return mCrimes;
     }
 
-    public Crime getCrime(UUID id) {
-        return mCrimes.get(id);
+    Crime getCrime(UUID id) {
+        return mCrimeIdMap.get(id);
     }
 
-    public static int getCrimePosition(UUID id) {
-        Crime crime = sCrimeLab.getCrime(id);
-        return 0;
+    void addCrime(Crime c) {
+        mCrimeIdMap.put(c.getId(), c);
+        mCrimes.add(c);
     }
 }

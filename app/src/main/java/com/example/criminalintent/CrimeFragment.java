@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
@@ -34,6 +35,8 @@ public class CrimeFragment extends Fragment {
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
+
+    private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
 
     static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -68,6 +71,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
+                returnResult(mCrime.getId());
             }
 
             @Override
@@ -95,6 +99,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
+                returnResult(mCrime.getId());
             }
         });
 
@@ -137,5 +142,15 @@ public class CrimeFragment extends Fragment {
 
     private void updateDate() {
         mDateButton.setText(mCrime.getDate().toString());
+    }
+
+    private void returnResult(UUID crimeId) {
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_CRIME_ID, crimeId);
+        Objects.requireNonNull(getActivity()).setResult(Activity.RESULT_OK, intent);
+    }
+
+    static UUID getCrimeId(Intent intent) {
+        return (UUID) intent.getSerializableExtra(EXTRA_CRIME_ID);
     }
 }

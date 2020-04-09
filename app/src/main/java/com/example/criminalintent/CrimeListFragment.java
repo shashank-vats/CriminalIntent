@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,13 +14,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
@@ -26,20 +32,28 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter mAdapter;
     private SimpleDateFormat mDf;
     private int mCrimePositionInList;
+    private List<Crime> mCrimes;
+    private boolean mCrimeInserted;
+    private boolean mSubtitleVisible;
 
     private static final String DATE_FORMAT = "EEEE, MMM dd, yyyy";
 
     private static final int REQUEST_CRIME = 1;
 
     private static final String KEY_CRIME_POSITION_IN_LIST = "crime_position";
+    private static final String KEY_CRIME_INSERTED = "crime_inserted";
+    private static final String KEY_SUBTITLE_VISIBLE = "subtitle";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mCrimePositionInList = -1;
         if (savedInstanceState != null) {
             mCrimePositionInList = savedInstanceState.getInt(KEY_CRIME_POSITION_IN_LIST);
+            mCrimeInserted = savedInstanceState.getBoolean(KEY_CRIME_INSERTED);
+            mSubtitleVisible = savedInstanceState.getBoolean(KEY_SUBTITLE_VISIBLE);
         }
-        mCrimePositionInList = -1;
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -49,6 +63,14 @@ public class CrimeListFragment extends Fragment {
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mDf = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+        final SwipeRefreshLayout refreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateUI();
+                refreshLayout.setRefreshing(false);
+            }
+        });
         return view;
     }
 
@@ -56,6 +78,39 @@ public class CrimeListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateUI();
+        mCrimeInserted = false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime_list, menu);
+
+        MenuItem subtitleItem = menu.findItem(R.id.show_subtitle);
+        if (mSubtitleVisible) {
+            subtitleItem.setTitle(R.string.hide_subtitle);
+        } else {
+            subtitleItem.setTitle(R.string.show_subtitle);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_crime:
+                Crime crime = new Crime();
+                CrimeLab.get(getActivity()).addCrime(crime);
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                startActivityForResult(intent, REQUEST_CRIME);
+                return true;
+            case R.id.show_subtitle:
+                mSubtitleVisible = !mSubtitleVisible;
+                Objects.requireNonNull(getActivity()).invalidateOptionsMenu();
+                updateSubtitle();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void updateUI() {
@@ -65,9 +120,12 @@ public class CrimeListFragment extends Fragment {
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
+        } else if (mCrimeInserted){
+            mAdapter.notifyItemInserted(mCrimePositionInList);
         } else {
-            mAdapter.notifyItemChanged(mCrimePositionInList);
+            mAdapter.notifyDataSetChanged();
         }
+        updateSubtitle();
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -76,7 +134,7 @@ public class CrimeListFragment extends Fragment {
         private TextView mDateTextView;
         private ImageView mSolvedImageView;
 
-        public CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
+        CrimeHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_crime, parent, false));
             itemView.setOnClickListener(this);
 
@@ -85,7 +143,7 @@ public class CrimeListFragment extends Fragment {
             mSolvedImageView = itemView.findViewById(R.id.solved_icon);
         }
 
-        public void bind(Crime crime) {
+        void bind(Crime crime) {
             mCrime = crime;
             mTitleTextView.setText(mCrime.getTitle());
             String date = mDf.format(mCrime.getDate());
@@ -106,8 +164,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
-        private List<Crime> mCrimes;
-        public CrimeAdapter(List<Crime> crimes) {
+        CrimeAdapter(List<Crime> crimes) {
             mCrimes = crimes;
         }
 
@@ -135,5 +192,37 @@ public class CrimeListFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CRIME_POSITION_IN_LIST, mCrimePositionInList);
+        outState.putBoolean(KEY_CRIME_INSERTED, mCrimeInserted);
+        outState.putBoolean(KEY_SUBTITLE_VISIBLE, mSubtitleVisible);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (resultCode == REQUEST_CRIME) {
+            assert data != null;
+            UUID crimeID = CrimeFragment.getCrimeId(data);
+            for (int i = 0; i < mCrimes.size(); i++) {
+                if (mCrimes.get(i).getId().equals(crimeID)) {
+                    mCrimePositionInList = i;
+                    mCrimeInserted = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    private void updateSubtitle() {
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        String subtitle = getString(R.string.subtitle_format, crimeCount);
+        if (!mSubtitleVisible) {
+            subtitle = null;
+        }
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        assert activity != null;
+        Objects.requireNonNull(activity.getSupportActionBar()).setSubtitle(subtitle);
     }
 }
