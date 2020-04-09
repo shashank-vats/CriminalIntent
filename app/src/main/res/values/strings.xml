@@ -21,4 +21,6 @@
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="edit_helper_text">Click on Edit Button to enable editing.</string>
+    <string name="empty_list_help_text">There are no crimes.</string>
+    <string name="add_crime_button_text">Add Crime</string>
 </resources>

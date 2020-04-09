@@ -9,7 +9,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,6 +38,8 @@ public class CrimeListFragment extends Fragment {
     private boolean mCrimeInserted;
     private boolean mSubtitleVisible;
     private boolean mCrimeDeleted;
+    private LinearLayout mEmptyLayout;
+    private SwipeRefreshLayout mRefreshLayout;
 
     private static final String DATE_FORMAT = "EEEE, MMM dd, yyyy";
 
@@ -50,12 +54,16 @@ public class CrimeListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCrimePositionInList = -1;
+
+        // Retrieve saved state
         if (savedInstanceState != null) {
             mCrimePositionInList = savedInstanceState.getInt(KEY_CRIME_POSITION_IN_LIST);
             mCrimeInserted = savedInstanceState.getBoolean(KEY_CRIME_INSERTED);
             mSubtitleVisible = savedInstanceState.getBoolean(KEY_SUBTITLE_VISIBLE);
             mCrimeDeleted = savedInstanceState.getBoolean(KEY_CRIME_DELETED);
         }
+
+        // For using toolbar
         setHasOptionsMenu(true);
     }
 
@@ -63,18 +71,47 @@ public class CrimeListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
+
+        // Set up recycler view
         mCrimeRecyclerView = view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        // For Date formatting
         mDf = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
-        final SwipeRefreshLayout refreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+        // Set up SwipeRefresher layout
+        mRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 updateUI();
-                refreshLayout.setRefreshing(false);
+                mRefreshLayout.setRefreshing(false);
             }
         });
+
+        // set up add crime button
+        Button addCrime = view.findViewById(R.id.add_crime_button);
+        addCrime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewCrime();
+            }
+        });
+
+        // set up empty layout
+        mEmptyLayout = view.findViewById(R.id.empty_list_view);
         return view;
+    }
+
+
+    // Call for creating a new crime
+    // Creates a new crime, adds it to CrimeLab, and calls the creation fragment
+    // with appropriate parameters
+    private void createNewCrime() {
+        Crime crime = new Crime();
+        CrimeLab.get(getActivity()).addCrime(crime);
+        Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId(), true);
+        startActivityForResult(intent, REQUEST_CRIME);
     }
 
     @Override
@@ -88,6 +125,7 @@ public class CrimeListFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime_list, menu);
 
+        // Change the text of subtitle menu item according to state
         MenuItem subtitleItem = menu.findItem(R.id.show_subtitle);
         if (mSubtitleVisible) {
             subtitleItem.setTitle(R.string.hide_subtitle);
@@ -100,10 +138,7 @@ public class CrimeListFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.new_crime:
-                Crime crime = new Crime();
-                CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId(), true);
-                startActivityForResult(intent, REQUEST_CRIME);
+                createNewCrime();
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -122,7 +157,7 @@ public class CrimeListFragment extends Fragment {
         if (mAdapter == null) {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
-        } else if (mCrimeInserted){
+        } else if (mCrimeInserted) {
             mAdapter.notifyItemInserted(mCrimePositionInList);
             mCrimeInserted = false;
         } else if (mCrimeDeleted) {
@@ -132,6 +167,15 @@ public class CrimeListFragment extends Fragment {
             mAdapter.notifyDataSetChanged();
         }
         updateSubtitle();
+
+        int crimeCount = CrimeLab.get(getActivity()).getSize();
+        if (crimeCount == 0) {
+            mRefreshLayout.setVisibility(View.GONE);
+            mEmptyLayout.setVisibility(View.VISIBLE);
+        } else {
+            mRefreshLayout.setVisibility(View.VISIBLE);
+            mEmptyLayout.setVisibility(View.INVISIBLE);
+        }
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -206,9 +250,11 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CRIME) {
+            // if a new crime got inserted
             mCrimePositionInList = CrimeLab.get(getActivity()).getSize();
             mCrimeInserted = true;
         } else if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CRIME) {
+            // if the fragment was called for a new crime but user did not save the crime
             assert data != null;
             UUID crimeId = CrimeFragment.getCrimeId(data);
             CrimeLab crimeLab = CrimeLab.get(getActivity());
