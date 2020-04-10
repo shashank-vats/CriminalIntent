@@ -77,7 +77,12 @@ public class CrimeFragment extends Fragment {
         assert getArguments() != null;
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mNewCrime = getArguments().getBoolean(ARG_NEW_CRIME);
-        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        if (mNewCrime) {
+            mCrime = new Crime(crimeId);
+            mCrime.setDate(new Date());
+        } else {
+            mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+        }
         setHasOptionsMenu(true);
         mEditable = mNewCrime;
         if (savedInstanceState != null) {
@@ -86,7 +91,7 @@ public class CrimeFragment extends Fragment {
         }
         mDf = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
         mTf = new SimpleDateFormat(TIME_FORMAT, Locale.ENGLISH);
-        returnResult(crimeId);
+        returnResult(mCrime.getId());
     }
 
     @Nullable
@@ -218,7 +223,11 @@ public class CrimeFragment extends Fragment {
         mCrime.setTitle(mTitleField.getText().toString());
         mCrime.setDate(mDate);
         mCrime.setSolved(mSolvedCheckBox.isChecked());
-        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        if (!mNewCrime) {
+            CrimeLab.get(getActivity()).updateCrime(mCrime);
+        } else {
+            CrimeLab.get(getActivity()).addCrime(mCrime);
+        }
         mNewCrime = false;
         returnResult(mCrime.getId());
     }
