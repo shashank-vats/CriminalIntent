@@ -218,6 +218,7 @@ public class CrimeFragment extends Fragment {
         mCrime.setTitle(mTitleField.getText().toString());
         mCrime.setDate(mDate);
         mCrime.setSolved(mSolvedCheckBox.isChecked());
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
         mNewCrime = false;
         returnResult(mCrime.getId());
     }
