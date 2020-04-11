@@ -35,5 +35,5 @@
     <string name="send_helper_text">Save crime to send report.</string>
     <string name="read_contact_permission_reason">You need to give permission to read Contact so
         that we can show you a possible list of Suspects.</string>
-    <string name="suspect_information">\"Suspect: %s\"</string>
+    <string name="suspect_information">Suspect: %s</string>
 </resources>

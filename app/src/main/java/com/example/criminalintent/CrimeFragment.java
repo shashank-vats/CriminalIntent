@@ -26,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -176,11 +177,12 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!mEditable) {
-                    Intent i = new Intent(Intent.ACTION_SEND);
-                    i.setType("text/plain");
-                    i.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
-                    i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
-                    i = Intent.createChooser(i, getString(R.string.crime_report));
+                    ShareCompat.IntentBuilder intentBuilder = ShareCompat.IntentBuilder.from(Objects.requireNonNull(getActivity()));
+                    intentBuilder.setType("text/plain");
+                    intentBuilder.setText(getCrimeReport());
+                    intentBuilder.setSubject(getString(R.string.crime_report_subject));
+                    intentBuilder.setChooserTitle(R.string.send_report);
+                    Intent i = intentBuilder.createChooserIntent();
                     startActivity(i);
                 } else {
                     Toast.makeText(getActivity(), R.string.send_helper_text, Toast.LENGTH_SHORT).show();
