@@ -53,6 +53,27 @@
             android:id="@+id/crime_solved"
             android:textColor="@color/text_color"/>
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/crime_suspect_button"
+            android:text="@string/crime_suspect_button_text"
+            android:textAllCaps="false"
+            android:textColor="@color/text_color"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="?android:attr/dividerHorizontal" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/crime_report_button"
+            android:text="@string/crime_report_button_text"
+            android:textAllCaps="false"
+            android:layout_marginTop="8dp"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

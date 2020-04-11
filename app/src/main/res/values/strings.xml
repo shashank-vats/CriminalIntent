@@ -20,7 +20,20 @@
     <string name="edit_crime">Edit Crime</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
-    <string name="edit_helper_text">Click on Edit Button to enable editing.</string>
+    <string name="edit_helper_text">Click on Edit Button to edit the crime.</string>
     <string name="empty_list_help_text">There are no crimes.</string>
     <string name="add_crime_button_text">Add Crime</string>
+    <string name="crime_suspect_button_text">Choose suspect</string>
+    <string name="crime_report_button_text">Send Crime Report</string>
+    <string name="crime_report">%1$s! The crime was discovered on %2$s. %3$s and %4$s</string>
+    <string name="crime_report_solved">The case is solved</string>
+    <string name="crime_report_unsolved">The case is not solved</string>
+    <string name="crime_report_no_suspect">there is no suspect.</string>
+    <string name="crime_report_suspect">the suspect is %s.</string>
+    <string name="crime_report_subject">CriminalIntent Crime Report</string>
+    <string name="send_report">Send crime report via</string>
+    <string name="send_helper_text">Save crime to send report.</string>
+    <string name="read_contact_permission_reason">You need to give permission to read Contact so
+        that we can show you a possible list of Suspects.</string>
+    <string name="suspect_information">\"Suspect: %s\"</string>
 </resources>
