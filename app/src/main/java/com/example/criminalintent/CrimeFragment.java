@@ -24,7 +24,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,7 +65,7 @@ public class CrimeFragment extends Fragment {
     private Button mReportButton;
     private Button mSuspectButton;
     private Button mCallSuspectButton;
-    private ImageButton mPhotoButton;
+    private ImageView mPhotoButton;
     private ImageView mPhotoView;
 
     private static final String DATE_FORMAT = "EEEE, MMM dd, yyyy";
@@ -254,26 +253,6 @@ public class CrimeFragment extends Fragment {
 
         mCanTakePhoto = mPhotoFile != null && captureImage.resolveActivity(packageManager) != null;
 
-        mPhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(getActivity()),
-                        "com.example.criminalintent.fileprovider",
-                        mPhotoFile);
-                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
-                List<ResolveInfo> cameraActivities = getActivity()
-                        .getPackageManager().queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
-
-                for (ResolveInfo activity : cameraActivities) {
-                    getActivity().grantUriPermission(activity.activityInfo.packageName,
-                            uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                }
-                Toast.makeText(getActivity(), R.string.photo_click_advice, Toast.LENGTH_SHORT).show();
-                startActivityForResult(captureImage, REQUEST_PHOTO);
-            }
-        });
-
         mPhotoView = v.findViewById(R.id.crime_photo);
         updatePhotoView();
         mPhotoView.setOnClickListener(new View.OnClickListener() {
@@ -358,7 +337,7 @@ public class CrimeFragment extends Fragment {
             mTimeButton.setEnabled(true);
             mSolvedCheckBox.setEnabled(true);
             mSuspectButton.setEnabled(true);
-            mPhotoButton.setEnabled(true);
+            mPhotoButton.setVisibility(View.VISIBLE);
             mEditAlert.setVisibility(View.INVISIBLE);
         } else {
             mTitleField.setEnabled(false);
@@ -366,7 +345,7 @@ public class CrimeFragment extends Fragment {
             mTimeButton.setEnabled(false);
             mSolvedCheckBox.setEnabled(false);
             mSuspectButton.setEnabled(false);
-            mPhotoButton.setEnabled(false);
+            mPhotoButton.setVisibility(View.INVISIBLE);
             mEditAlert.setVisibility(View.VISIBLE);
         }
         if (!mContactAppInstalled) {
@@ -375,8 +354,11 @@ public class CrimeFragment extends Fragment {
         if (mCrime.getSuspect() == null) {
             mCallSuspectButton.setEnabled(false);
         }
-        if (!mCanTakePhoto) {
-            mPhotoButton.setEnabled(false);
+        if (!mCanTakePhoto && mEditable) {
+            mPhotoView.setEnabled(false);
+        }
+        if (mEditable && (mPhotoFile == null || !mPhotoFile.exists())) {
+            mPhotoView.setEnabled(false);
         }
     }
 
