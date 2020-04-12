@@ -8,23 +8,63 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="16dp"
+        android:layout_margin="8dp"
         android:id="@+id/edit_layout">
-
-        <TextView
+        
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="?android:listSeparatorTextViewStyle"
-            android:text="@string/crime_title_label" />
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerInside"
+                    android:cropToPadding="true"
+                    android:background="@android:color/darker_gray"
+                    android:id="@+id/crime_photo"
+                    android:contentDescription="@string/crime_photo_description" />
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/crime_title"
-            android:hint="@string/crime_title_hint"
-            android:inputType="textNoSuggestions"
-            android:autofillHints="@string/crime_title_label"
-            android:textColor="@color/text_color"/>
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/crime_camera"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:contentDescription="@string/crime_camera_description" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="?android:listSeparatorTextViewStyle"
+                    android:text="@string/crime_title_label" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/crime_title"
+                    android:hint="@string/crime_title_hint"
+                    android:inputType="textCapSentences"
+                    android:autofillHints="@string/crime_title_label"
+                    android:textColor="@color/text_color" />
+
+            </LinearLayout>
+            
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"

@@ -38,4 +38,7 @@
     <string name="suspect_information">Suspect: %s</string>
     <string name="call_suspect_button_text">Confront the suspect!</string>
     <string name="call_suspect_helper_text">Save crime to call the suspect.</string>
+    <string name="crime_photo_description">Crime Photo</string>
+    <string name="crime_camera_description">Take crime\'s photo</string>
+    <string name="photo_click_advice">Use your camera in square configuration to get best photo.</string>
 </resources>
