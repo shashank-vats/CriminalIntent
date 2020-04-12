@@ -29,7 +29,9 @@
                     android:cropToPadding="true"
                     android:background="@android:color/darker_gray"
                     android:id="@+id/crime_photo"
-                    android:contentDescription="@string/crime_photo_description" />
+                    android:contentDescription="@string/crime_photo_description">
+
+                </ImageView>
 
                 <ImageButton
                     android:layout_width="match_parent"

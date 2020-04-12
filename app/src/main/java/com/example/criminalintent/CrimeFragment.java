@@ -77,6 +77,7 @@ public class CrimeFragment extends Fragment {
 
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
+    private static final String DIALOG_PHOTO = "DialogPhoto";
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
@@ -275,6 +276,32 @@ public class CrimeFragment extends Fragment {
 
         mPhotoView = v.findViewById(R.id.crime_photo);
         updatePhotoView();
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mEditable) {
+                    FragmentManager manager = getFragmentManager();
+                    PhotoViewerFragment dialog = PhotoViewerFragment.newInstance(mPhotoFile.getPath());
+                    assert manager != null;
+                    dialog.show(manager, DIALOG_PHOTO);
+                } else {
+                    Uri uri = FileProvider.getUriForFile(Objects.requireNonNull(getActivity()),
+                            "com.example.criminalintent.fileprovider",
+                            mPhotoFile);
+                    captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+                    List<ResolveInfo> cameraActivities = getActivity()
+                            .getPackageManager().queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY);
+
+                    for (ResolveInfo activity : cameraActivities) {
+                        getActivity().grantUriPermission(activity.activityInfo.packageName,
+                                uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    }
+                    Toast.makeText(getActivity(), R.string.photo_click_advice, Toast.LENGTH_SHORT).show();
+                    startActivityForResult(captureImage, REQUEST_PHOTO);
+                }
+            }
+        });
         updateUI();
         return v;
     }
