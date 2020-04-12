@@ -357,7 +357,7 @@ public class CrimeFragment extends Fragment {
         if (!mCanTakePhoto && mEditable) {
             mPhotoView.setEnabled(false);
         }
-        if (mEditable && (mPhotoFile == null || !mPhotoFile.exists())) {
+        if (!mEditable && (mPhotoFile == null || !mPhotoFile.exists())) {
             mPhotoView.setEnabled(false);
         }
     }
