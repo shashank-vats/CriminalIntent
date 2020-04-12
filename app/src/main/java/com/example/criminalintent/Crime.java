@@ -10,6 +10,15 @@ public class Crime {
     private Date mDate;
     private boolean mSolved;
     private String mSuspect;
+    private String mSuspectLookupKey;
+
+    public String getSuspectLookupKey() {
+        return mSuspectLookupKey;
+    }
+
+    public void setSuspectLookupKey(String suspectLookupKey) {
+        mSuspectLookupKey = suspectLookupKey;
+    }
 
     public String getSuspect() {
         return mSuspect;

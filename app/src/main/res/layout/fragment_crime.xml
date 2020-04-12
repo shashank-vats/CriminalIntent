@@ -36,7 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/crime_date"
-            android:textColor="@color/text_color"/>
+            android:textColor="@color/text_color"
+            android:textAllCaps="false"/>
 
         <Button
             android:layout_width="match_parent"
@@ -73,6 +74,13 @@
             android:text="@string/crime_report_button_text"
             android:textAllCaps="false"
             android:layout_marginTop="8dp"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/call_suspect_button"
+            android:text="@string/call_suspect_button_text"
+            android:textAllCaps="false" />
 
         <TextView
             android:layout_width="match_parent"

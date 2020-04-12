@@ -2,6 +2,7 @@ package com.example.criminalintent;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -54,6 +55,7 @@ public class CrimeFragment extends Fragment {
     private TextView mEditAlert;
     private Button mReportButton;
     private Button mSuspectButton;
+    private Button mCallSuspectButton;
 
     private static final String DATE_FORMAT = "EEEE, MMM dd, yyyy";
     private static final String TIME_FORMAT = "hh:mm a";
@@ -208,12 +210,26 @@ public class CrimeFragment extends Fragment {
                 }
             }
         });
-        if (mCrime.getSuspect() != null) {
-            mSuspectButton.setText(getString(R.string.suspect_information, mCrime.getSuspect()));
-        }
 
         PackageManager packageManager = Objects.requireNonNull(getActivity()).getPackageManager();
         mContactAppInstalled = packageManager.resolveActivity(pickContact, PackageManager.MATCH_DEFAULT_ONLY) != null;
+
+        mCallSuspectButton = v.findViewById(R.id.call_suspect_button);
+        mCallSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mEditable) {
+                    Toast.makeText(getActivity(), R.string.call_suspect_helper_text, Toast.LENGTH_SHORT).show();
+                } else {
+                    String phoneNumber = getPhoneNumber();
+                    if (phoneNumber == null) return;
+                    Intent i = new Intent(Intent.ACTION_DIAL);
+                    Uri number = Uri.parse("tel:" + phoneNumber);
+                    i.setData(number);
+                    startActivity(i);
+                }
+            }
+        });
 
         updateUI();
         return v;
@@ -262,6 +278,9 @@ public class CrimeFragment extends Fragment {
     }
 
     private void updateUI() {
+        if (mCrime.getSuspect() != null) {
+            mSuspectButton.setText(getString(R.string.suspect_information, mCrime.getSuspect()));
+        }
         if (mEditable) {
             mTitleField.setEnabled(true);
             mDateButton.setEnabled(true);
@@ -279,6 +298,9 @@ public class CrimeFragment extends Fragment {
         }
         if (!mContactAppInstalled) {
             mSuspectButton.setEnabled(false);
+        }
+        if (mCrime.getSuspect() == null) {
+            mCallSuspectButton.setEnabled(false);
         }
     }
 
@@ -313,7 +335,8 @@ public class CrimeFragment extends Fragment {
         } else if (requestCode == REQUEST_CONTACT && data != null) {
             Uri contactUri = data.getData();
             String[] queryFields = new String[]{
-                    ContactsContract.Contacts.DISPLAY_NAME
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts.LOOKUP_KEY
             };
             assert contactUri != null;
             try (Cursor c = Objects.requireNonNull(getActivity()).getContentResolver().
@@ -325,8 +348,11 @@ public class CrimeFragment extends Fragment {
 
                 c.moveToFirst();
                 String suspect = c.getString(0);
+                String lookupKey = c.getString(1);
                 mCrime.setSuspect(suspect);
-                mSuspectButton.setText(suspect);
+                mCrime.setSuspectLookupKey(lookupKey);
+                mSuspectButton.setText(getString(R.string.suspect_information, suspect));
+                mCallSuspectButton.setEnabled(true);
             }
         }
     }
@@ -371,5 +397,40 @@ public class CrimeFragment extends Fragment {
         }
 
         return getString(R.string.crime_report, mCrime.getTitle(), dateString, solvedString, suspect);
+    }
+
+    private String getPhoneNumber() {
+        String phoneNumber = null;
+        Uri lookupUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+
+        String[] queryFields = new String[] {
+                ContactsContract.Data.LOOKUP_KEY,
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.TYPE
+        };
+
+        String selectionClause = ContactsContract.Data.LOOKUP_KEY + " = ?";
+        String[] selectionArgs = {mCrime.getSuspectLookupKey()};
+
+        ContentResolver contentResolver = Objects.requireNonNull(getActivity()).getContentResolver();
+
+        try (Cursor c = contentResolver.query(lookupUri,
+                queryFields, selectionClause, selectionArgs, null)) {
+            assert c != null;
+            if (c.getCount() == 0) {
+                return null;
+            }
+
+            while (c.moveToNext()) {
+                int phoneType = c.getInt(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                if (phoneType == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE ||
+                        phoneType == ContactsContract.CommonDataKinds.Phone.TYPE_HOME ||
+                        phoneType == ContactsContract.CommonDataKinds.Phone.TYPE_WORK) {
+                    phoneNumber = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    break;
+                }
+            }
+        }
+        return phoneNumber;
     }
 }

@@ -9,7 +9,7 @@
     <string name="last_button_text">Last</string>
     <string name="date_picker_title">Date of crime:</string>
     <string name="time_picker_title">Time of crime:</string>
-    <string name="time_button_text">Set time</string>
+    <string name="time_button_text">Change Time %s</string>
     <string name="new_crime">New Crime</string>
     <string name="show_subtitle">Show number of crimes</string>
     <string name="hide_subtitle">Hide number of crimes</string>
@@ -36,4 +36,6 @@
     <string name="read_contact_permission_reason">You need to give permission to read Contact so
         that we can show you a possible list of Suspects.</string>
     <string name="suspect_information">Suspect: %s</string>
+    <string name="call_suspect_button_text">Confront the suspect!</string>
+    <string name="call_suspect_helper_text">Save crime to call the suspect.</string>
 </resources>
