@@ -1,7 +1,6 @@
 package com.example.criminalintent;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,41 +25,39 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
 public class CrimeListFragment extends Fragment {
 
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private SimpleDateFormat mDf;
-    private int mCrimePositionInList;
     private List<Crime> mCrimes;
-    private boolean mCrimeInserted;
     private boolean mSubtitleVisible;
-    private boolean mCrimeDeleted;
     private LinearLayout mEmptyLayout;
     private SwipeRefreshLayout mRefreshLayout;
+    private Callbacks mCallbacks;
 
     private static final String DATE_FORMAT = "EEEE, MMM dd, yyyy";
 
-    private static final int REQUEST_CRIME = 1;
-
-    private static final String KEY_CRIME_POSITION_IN_LIST = "crime_position";
-    private static final String KEY_CRIME_INSERTED = "crime_inserted";
     private static final String KEY_SUBTITLE_VISIBLE = "subtitle";
-    private static final String KEY_CRIME_DELETED = "crime_deleted";
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime, boolean newCrime);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCrimePositionInList = -1;
 
         // Retrieve saved state
         if (savedInstanceState != null) {
-            mCrimePositionInList = savedInstanceState.getInt(KEY_CRIME_POSITION_IN_LIST);
-            mCrimeInserted = savedInstanceState.getBoolean(KEY_CRIME_INSERTED);
             mSubtitleVisible = savedInstanceState.getBoolean(KEY_SUBTITLE_VISIBLE);
-            mCrimeDeleted = savedInstanceState.getBoolean(KEY_CRIME_DELETED);
         }
 
         // For using toolbar
@@ -109,8 +106,7 @@ public class CrimeListFragment extends Fragment {
     // with appropriate parameters
     private void createNewCrime() {
         Crime crime = new Crime();
-        Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId(), true);
-        startActivityForResult(intent, REQUEST_CRIME);
+        mCallbacks.onCrimeSelected(crime, true);
     }
 
     @Override
@@ -149,7 +145,7 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private void updateUI() {
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -201,9 +197,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId(), false);
-            mCrimePositionInList = getAdapterPosition();
-            startActivity(intent);
+            mCallbacks.onCrimeSelected(mCrime, false);
         }
     }
 
@@ -239,28 +233,8 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_CRIME_POSITION_IN_LIST, mCrimePositionInList);
-        outState.putBoolean(KEY_CRIME_INSERTED, mCrimeInserted);
         outState.putBoolean(KEY_SUBTITLE_VISIBLE, mSubtitleVisible);
-        outState.putBoolean(KEY_CRIME_DELETED, mCrimeDeleted);
     }
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CRIME) {
-//            // if a new crime got inserted
-//            mCrimePositionInList = CrimeLab.get(getActivity()).getSize();
-//            mCrimeInserted = true;
-//        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CRIME) {
-//            // if the fragment was called for a new crime but user did not save the crime
-//            assert data != null;
-//            UUID crimeId = CrimeFragment.getCrimeId(data);
-//            CrimeLab crimeLab = CrimeLab.get(getActivity());
-//            crimeLab.deleteCrime(crimeId);
-//            mCrimePositionInList = crimeLab.getSize();
-//            mCrimeDeleted = true;
-//        }
-//    }
 
     private void updateSubtitle() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
@@ -272,5 +246,11 @@ public class CrimeListFragment extends Fragment {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         assert activity != null;
         Objects.requireNonNull(activity.getSupportActionBar()).setSubtitle(subtitle);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 }

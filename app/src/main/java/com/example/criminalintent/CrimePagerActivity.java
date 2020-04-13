@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeListFragment.Callbacks {
     private ViewPager mViewPager;
     private Button mFirstButton;
     private Button mLastButton;
@@ -95,6 +95,11 @@ public class CrimePagerActivity extends AppCompatActivity {
         });
 
         mViewPager.addOnPageChangeListener(new MyOnPageChangeListener());
+    }
+
+    @Override
+    public void onCrimeSelected(Crime crime, boolean newCrime) {
+
     }
 
     private class MyOnPageChangeListener extends ViewPager.SimpleOnPageChangeListener {

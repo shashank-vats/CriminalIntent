@@ -3,6 +3,7 @@ package com.example.criminalintent;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -40,7 +41,9 @@ import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -57,6 +60,7 @@ public class CrimeFragment extends Fragment {
     private boolean mContactAppInstalled;
     private File mPhotoFile;
     private boolean mCanTakePhoto;
+    private Callbacks mCallbacks;
 
     private Button mDateButton;
     private EditText mTitleField;
@@ -87,9 +91,11 @@ public class CrimeFragment extends Fragment {
     private static final String KEY_NEW_CRIME = "new_crime";
     private static final String KEY_EDITABLE = "editable";
 
-    private static final String EXTRA_CRIME_ID = "com.example.criminalintent.crime_id";
-
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 5;
+
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
+    }
 
     static CrimeFragment newInstance(UUID crimeId, boolean newCrime) {
         Bundle args = new Bundle();
@@ -98,6 +104,12 @@ public class CrimeFragment extends Fragment {
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
     }
 
     @Override
@@ -122,7 +134,6 @@ public class CrimeFragment extends Fragment {
         mDf = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
         mTf = new SimpleDateFormat(TIME_FORMAT, Locale.ENGLISH);
         mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);
-        returnResult(mCrime.getId());
     }
 
     @Nullable
@@ -379,7 +390,7 @@ public class CrimeFragment extends Fragment {
             CrimeLab.get(getActivity()).addCrime(mCrime);
         }
         mNewCrime = false;
-        returnResult(mCrime.getId());
+        mCallbacks.onCrimeUpdated(mCrime);
     }
 
     @Override
@@ -396,7 +407,8 @@ public class CrimeFragment extends Fragment {
             assert data != null;
             Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
             assert date != null;
-            updateDate(date);
+            Calendar calendarDate = addDateTime(mDate, date);
+            updateDate(calendarDate.getTime());
         } else if (requestCode == REQUEST_CONTACT && data != null) {
             Uri contactUri = data.getData();
             String[] queryFields = new String[]{
@@ -430,20 +442,21 @@ public class CrimeFragment extends Fragment {
         }
     }
 
+    private static Calendar addDateTime(Date date, Date time) {
+        Calendar calendarDate = GregorianCalendar.getInstance();
+        calendarDate.setTime(date);
+        Calendar calendarTime = GregorianCalendar.getInstance();
+        calendarTime.setTime(time);
+        calendarDate.set(Calendar.HOUR_OF_DAY, calendarTime.get(Calendar.HOUR_OF_DAY));
+        calendarDate.set(Calendar.MINUTE, calendarTime.get(Calendar.MINUTE));
+        return calendarDate;
+    }
+
     private void updateDate(Date date) {
         mDate = date;
         mDateButton.setText(mDf.format(date));
         mTimeButton.setText(mTf.format(date));
-    }
-
-    private void returnResult(UUID crimeId) {
-        Intent intent = new Intent();
-        intent.putExtra(EXTRA_CRIME_ID, crimeId);
-        if (!mNewCrime) {
-            Objects.requireNonNull(getActivity()).setResult(Activity.RESULT_OK, intent);
-        } else {
-            Objects.requireNonNull(getActivity()).setResult(Activity.RESULT_CANCELED, intent);
-        }
+        mCrime.setDate(date);
     }
 
     @Override
@@ -514,5 +527,11 @@ public class CrimeFragment extends Fragment {
             Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getPath(), mPhotoView);
             mPhotoView.setImageBitmap(bitmap);
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 }
