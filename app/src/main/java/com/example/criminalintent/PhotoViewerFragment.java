@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +21,9 @@ import java.util.Objects;
 
 public class PhotoViewerFragment extends DialogFragment {
     private static final String ARG_PHOTO_PATH = "photo_path";
+
+    private ImageView mPhotoView;
+    private String mPhotoPath;
 
     static PhotoViewerFragment newInstance(String photoPath) {
         Bundle args = new Bundle();
@@ -31,17 +37,17 @@ public class PhotoViewerFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         assert getArguments() != null;
-        String photoPath = getArguments().getString(ARG_PHOTO_PATH);
-        Bitmap bitmap = PictureUtils.getScaledBitmap(photoPath, Objects.requireNonNull(getActivity()));
+        mPhotoPath = getArguments().getString(ARG_PHOTO_PATH);
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_photo_viewer, null);
-        ImageView photoView = v.findViewById(R.id.photo_zoom_view);
-        photoView.setImageBitmap(bitmap);
+        mPhotoView = v.findViewById(R.id.photo_zoom_view);
+        Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoPath, Objects.requireNonNull(getActivity()));
+        mPhotoView.setImageBitmap(bitmap);
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction().remove(PhotoViewerFragment.this).commit();
+                        PhotoViewerFragment.this.dismiss();
                     }
                 }).create();
     }
