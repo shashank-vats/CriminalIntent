@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class CrimePagerActivity extends AppCompatActivity implements CrimeListFragment.Callbacks {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeFragment.Callbacks {
     private ViewPager mViewPager;
     private Button mFirstButton;
     private Button mLastButton;
@@ -98,7 +98,7 @@ public class CrimePagerActivity extends AppCompatActivity implements CrimeListFr
     }
 
     @Override
-    public void onCrimeSelected(Crime crime, boolean newCrime) {
+    public void onCrimeUpdated(Crime crime) {
 
     }
 

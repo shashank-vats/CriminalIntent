@@ -356,6 +356,7 @@ public class CrimeFragment extends Fragment {
             mSolvedCheckBox.setEnabled(true);
             mSuspectButton.setEnabled(true);
             mPhotoButton.setVisibility(View.VISIBLE);
+            mPhotoView.setEnabled(true);
             mEditAlert.setVisibility(View.INVISIBLE);
         } else {
             mTitleField.setEnabled(false);
@@ -364,6 +365,7 @@ public class CrimeFragment extends Fragment {
             mSolvedCheckBox.setEnabled(false);
             mSuspectButton.setEnabled(false);
             mPhotoButton.setVisibility(View.INVISIBLE);
+            mPhotoView.setEnabled(true);
             mEditAlert.setVisibility(View.VISIBLE);
         }
         if (!mContactAppInstalled) {
