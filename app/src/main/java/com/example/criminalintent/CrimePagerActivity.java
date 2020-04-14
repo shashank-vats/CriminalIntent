@@ -64,20 +64,6 @@ public class CrimePagerActivity extends AppCompatActivity implements CrimeFragme
 
         });
 
-        if (mNewCrime) {
-            Crime crime = new Crime(crimeId);
-            mCrimes.add(crime);
-            Objects.requireNonNull(mViewPager.getAdapter()).notifyDataSetChanged();
-            mViewPager.setCurrentItem(mCrimes.size() - 1);
-        } else {
-            for (int i = 0; i < mCrimes.size(); i++) {
-                if (mCrimes.get(i).getId().equals(crimeId)) {
-                    mViewPager.setCurrentItem(i);
-                    break;
-                }
-            }
-        }
-
         mFirstButton = findViewById(R.id.first_button);
         mFirstButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +79,30 @@ public class CrimePagerActivity extends AppCompatActivity implements CrimeFragme
                 mViewPager.setCurrentItem(mCrimes.size() - 1);
             }
         });
+
+        if (mNewCrime) {
+            Crime crime = new Crime(crimeId);
+            mCrimes.add(crime);
+            Objects.requireNonNull(mViewPager.getAdapter()).notifyDataSetChanged();
+            mViewPager.setCurrentItem(mCrimes.size() - 1);
+            if (mCrimes.size() == 1) {
+                mFirstButton.setEnabled(false);
+            }
+            mLastButton.setEnabled(false);
+        } else {
+            for (int i = 0; i < mCrimes.size(); i++) {
+                if (mCrimes.get(i).getId().equals(crimeId)) {
+                    mViewPager.setCurrentItem(i);
+                    if (i == 0) {
+                        mFirstButton.setEnabled(false);
+                    }
+                    if (i == mCrimes.size() - 1) {
+                        mLastButton.setEnabled(false);
+                    }
+                    break;
+                }
+            }
+        }
 
         mViewPager.addOnPageChangeListener(new MyOnPageChangeListener());
     }
