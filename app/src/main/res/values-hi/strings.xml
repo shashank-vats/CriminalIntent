@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CriminalIntent</string>
+    <string name="crime_title_hint">कृपया अपराध का शीर्षक लिखें</string>
+    <string name="crime_title_label">शीर्षक</string>
+    <string name="crime_details_label">विवरण</string>
+    <string name="crime_solved_label">हल हो चुका हॆ</string>
+    <string name="ic_solved_description">अपराध हल हो चुका हॆ</string>
+    <string name="first_button_text">प्रथम</string>
+    <string name="last_button_text">अंतिम</string>
+    <string name="date_picker_title">अपराध की तारीख़:</string>
+    <string name="time_picker_title">अपराध का समय:</string>
+    <string name="time_button_text">समय बदलें %s</string>
+    <string name="new_crime">नया अपराध</string>
+    <string name="show_subtitle">अपराधों की संख्या दिखाएं</string>
+    <string name="hide_subtitle">अपराधों की संख्या छिपाएं</string>
+    <plurals name="subtitle_plural">
+        <item quantity="one">%1$d अपराध</item>
+        <item quantity="other">%1$d अपराध</item>
+    </plurals>
+    <string name="edit_crime">अपराध संपादित करें</string>
+    <string name="save">सहेजें</string>
+    <string name="delete">हटाएं</string>
+    <string name="edit_helper_text">कृपया अपराध को संपादित करने के लिए संपादन बटन को दबाएं</string>
+    <string name="empty_list_help_text">अभी कोई अपराध नहीं हॆ।</string>
+    <string name="add_crime_button_text">अपराध जोड़ें</string>
+    <string name="crime_suspect_button_text">संदिग्ध चुनें</string>
+    <string name="crime_report_button_text">अपराध विवरण भेजें</string>
+    <string name="crime_report">%1$s! %2$s को अपराध खोजा गया। %3$s ऒर %4$s</string>
+    <string name="crime_report_solved">अपराध हल हो चुक हॆ</string>
+    <string name="crime_report_unsolved">अपराध हल नहीं हुआ हॆ</string>
+    <string name="crime_report_no_suspect">कोई संदिग्ध नहीं हॆ।</string>
+    <string name="crime_report_suspect">संदिग्ध का नाम %s हॆ।</string>
+    <string name="crime_report_subject">CriminalIntent अपराध विवरण</string>
+    <string name="send_report">इसके माध्यम से विवरण भेजें</string>
+    <string name="send_helper_text">विवरण भेजने के लिए पहले अपराध को सहेजें।</string>
+    <string name="read_contact_permission_reason">आपको हमें संपर्क पढने की अनुमति देनी होगी ताकि हम आपको संभावित संदिग्धों
+    की सूची दिखा सकें</string>
+    <string name="suspect_information">संदिग्ध: %s</string>
+    <string name="call_suspect_button_text">संदिग्ध को चेतावनी दें!</string>
+    <string name="call_suspect_helper_text">संदिग्ध को काॅल करने से पहले अपराध को सहेजें।</string>
+    <string name="crime_photo_description">अपराध की फ़ोटो</string>
+    <string name="crime_camera_description">अपराध की फ़ोटो लें</string>
+    <string name="photo_click_advice">अच्छी फ़ोटो के लिए अपने कॆमरे को वर्गाकार समाकृति में उपयोग करें।</string>
+</resources>
